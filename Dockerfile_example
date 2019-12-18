@@ -1,0 +1,30 @@
+From ubuntu:latest
+
+USER  ubuntu 
+WORKDIR /home/ubuntu
+
+
+## copying setup scripts and env file 
+COPY ./env/set_env.sh /usr/local/ec2/
+RUN sudo rm -rf /etc/profile.d/tt_env.sh
+COPY env_script.sh /etc/profile.d/
+COPY startup.sh /home/ubuntu/
+COPY ./env/env  /home/ubuntu/
+
+## pull latest code of master branch and setup nginx 
+RUN sudo mkdir -p /home/ubuntu/docker_project
+COPY ./app /home/ubuntu/docker_project
+
+RUN sudo rm -rf /home/ubuntu/docker_project/log && sudo mkdir -p /home/ubuntu/shared/  && \
+    sudo ln -sf /home/ubuntu/docker_project/shared/config/dmc.yml /home/ubuntu/app/config/dmc.yml && \
+    sudo ln -sf /home/ubuntu/docker_project/shared/log /home/ubuntu/app/log && \
+    sudo rm -rf /home/ubuntu/docker_project/tmp &&  ln -sf /home/ubunt/shared/tmp  /home/ubuntu/app/tmp && \
+    sudo sed -i 's/app\/current/app/g' /home/ubuntu/app/config/nginx/qa/nginx.conf && \
+    sudo ln -sf /home/ubuntu/docker_project/config/nginx/qa/platform.conf /etc/nginx/platform.conf  && \
+    sudo ln -sf /home/ubuntu/docker_project/config/nginx/qa/nginx.conf  /etc/nginx/nginx.conf && \
+    sudo chown -R ubuntu:ubuntu /home/ubuntu/  && \
+    cd /home/ubuntu/docker_project/  && sudo  gem install bundler -v 1.17.3 --force  && \
+    cd /home/ubuntu/docker_project/  &&  bundle install  --without development test --quiet 
+
+ENTRYPOINT bash /home/ubuntu/startup.sh 
+EXPOSE 80 443
