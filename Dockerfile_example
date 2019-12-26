@@ -6,7 +6,7 @@ WORKDIR /home/ubuntu
 
 ## copying setup scripts and env file 
 COPY ./env/set_env.sh /usr/local/ec2/
-RUN sudo rm -rf /etc/profile.d/tt_env.sh
+RUN sudo rm -rf /etc/profile.d/env.sh
 COPY env_script.sh /etc/profile.d/
 COPY startup.sh /home/ubuntu/
 COPY ./env/env  /home/ubuntu/
@@ -16,7 +16,7 @@ RUN sudo mkdir -p /home/ubuntu/docker_project
 COPY ./app /home/ubuntu/docker_project
 
 RUN sudo rm -rf /home/ubuntu/docker_project/log && sudo mkdir -p /home/ubuntu/shared/  && \
-    sudo ln -sf /home/ubuntu/docker_project/shared/config/dmc.yml /home/ubuntu/app/config/dmc.yml && \
+    sudo ln -sf /home/ubuntu/docker_project/shared/config/dmc.yml /home/ubuntu/app/config/config.yml && \
     sudo ln -sf /home/ubuntu/docker_project/shared/log /home/ubuntu/app/log && \
     sudo rm -rf /home/ubuntu/docker_project/tmp &&  ln -sf /home/ubunt/shared/tmp  /home/ubuntu/app/tmp && \
     sudo sed -i 's/app\/current/app/g' /home/ubuntu/app/config/nginx/qa/nginx.conf && \
